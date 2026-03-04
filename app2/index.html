@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>App 2</title>
+  <style>
+    body { background: #f6ffed; padding: 20px; }
+    .log { margin-top: 10px; padding: 5px; background: #fff; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>子应用 2</h2>
+  <div id="logs"></div>
+  <button id="sendToApp1">让 App1 +1</button>
+
+  <script>
+    function log(msg) {
+      const div = document.createElement('div');
+      div.className = 'log';
+      div.textContent = msg;
+      document.getElementById('logs').appendChild(div);
+    }
+
+    window.addEventListener('message', (event) => {
+      console.log('[App2] 收到消息:', event.data);
+      log('收到: ' + JSON.stringify(event.data));
+
+      if (event.data.type === 'TO_APP2') {
+        // 收到来自 App1 的消息
+        log('来自 App1: ' + event.data.payload);
+      }
+    });
+
+    document.getElementById('sendToApp1').onclick = () => {
+      // 通知主应用，让 App1 增加计数
+      window.parent.postMessage({ type: 'REQUEST_APP1_INCREMENT' }, '*');
+    };
+  </script>
+</body>
+</html>

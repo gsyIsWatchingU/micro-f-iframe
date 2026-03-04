@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>App 1</title>
+  <style>
+    body { background: #e6f7ff; padding: 20px; }
+    .counter { font-size: 24px; color: #1890ff; }
+  </style>
+</head>
+<body>
+  <h2>子应用 1</h2>
+  <div class="counter">计数: <span id="count">0</span></div>
+  <button id="sendToMain">发送消息给主应用</button>
+  <button id="sendToApp2">发送消息给 App2</button>
+
+  <script>
+    let count = 0;
+    const countEl = document.getElementById('count');
+
+    // 监听来自主应用或其他子应用的消息
+    window.addEventListener('message', (event) => {
+      // 安全校验：实际项目应检查 event.origin
+      console.log('[App1] 收到消息:', event.data);
+
+      if (event.data.type === 'INCREMENT_FROM_APP2') {
+        count++;
+        countEl.textContent = count;
+      }
+    });
+
+    document.getElementById('sendToMain').onclick = () => {
+      window.parent.postMessage({ type: 'FROM_APP1', payload: 'Hello from App1!' }, '*');
+    };
+
+    document.getElementById('sendToApp2').onclick = () => {
+      // 通过主应用中转（或直接访问 parent.frames[1]，但不推荐）
+      window.parent.postMessage({ type: 'TO_APP2', payload: 'Hi App2 from App1!' }, '*');
+    };
+  </script>
+</body>
+</html>

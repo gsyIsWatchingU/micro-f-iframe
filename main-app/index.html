@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>微前端主应用</title>
+  <style>
+    body { font-family: Arial; margin: 0; padding: 20px; }
+    .container { display: flex; gap: 20px; height: 400px; }
+    iframe { width: 100%; border: 2px solid #ddd; border-radius: 8px; }
+    h1 { text-align: center; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>微前端演示（基于 iframe）</h1>
+  <div class="container">
+    <iframe id="frame1" src="../app1/index.html" frameborder="0"></iframe>
+    <iframe id="frame2" src="../app2/index.html" frameborder="0"></iframe>
+  </div>
+
+  <script>
+    const frame1 = document.getElementById('frame1');
+    const frame2 = document.getElementById('frame2');
+
+    // 主应用监听所有子应用发来的消息
+    window.addEventListener('message', (event) => {
+      console.log('[Main] 收到子应用消息:', event.data);
+
+      const data = event.data;
+
+      // 场景1：App1 发消息给主应用
+      if (data.type === 'FROM_APP1') {
+        alert('主应用收到：' + data.payload);
+      }
+
+      // 场景2：App1 想发消息给 App2 → 主应用中转
+      if (data.type === 'TO_APP2') {
+        frame2.contentWindow.postMessage(data, '*');
+      }
+
+      // 场景3：App2 请求 App1 增加计数
+      if (data.type === 'REQUEST_APP1_INCREMENT') {
+        frame1.contentWindow.postMessage({ type: 'INCREMENT_FROM_APP2' }, '*');
+      }
+    });
+  </script>
+</body>
+</html>
